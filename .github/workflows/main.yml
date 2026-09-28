@@ -1,0 +1,29 @@
+name: Link to Files.ir
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Direct download link"
+        required: true
+      name:
+        description: "File name (optional)"
+        required: false
+      parent_id:
+        description: "Files.ir folder id (optional, empty = root)"
+        required: false
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - name: Download & upload
+        env:
+          FILESIR_TOKEN: ${{ secrets.FILESIR_TOKEN }}
+          SRC_URL: ${{ github.event.inputs.url }}
+          FILE_NAME: ${{ github.event.inputs.name }}
+          PARENT_ID: ${{ github.event.inputs.parent_id }}
+        run: python uploader.py "$SRC_URL"
